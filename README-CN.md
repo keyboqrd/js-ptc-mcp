@@ -79,13 +79,20 @@ PTC MCP 根据您的部署拓扑支持两种不同的架构。
 
 ## 沙箱环境
 
-QuickJS WASM 环境是严格沙箱化的，专注于状态机编排和数据操作。
+QuickJS WASM 环境是严格沙箱化的，专注于状态机编排、数据操作以及**通用逻辑执行**。它既可以用于复杂的工具链调用，也可以用于简单的纯 JavaScript 计算或数据转换。
 
-- **可用**：`call_client_tool("alias.tool_name", args)`、`print(data)`、`async/await`、`Promise.all` 以及标准 ES2022 原语（Math, Date, Array 等）。
+- **可用**：`call_client_tool("alias.tool_name", args)`、`print(data)`、`async/await`、`Promise.all` 以及标准 ES2022 原语（Math, Date, Array, String 等）。
 - **限制**：**没有** `fetch`，**没有** 定时器 (`setTimeout`)，也 **没有** Node.js/浏览器 API。所有外部交互必须通过 `call_client_tool` 进行。
 
 ### LLM 脚本示例
 
+**场景 A：纯 JavaScript 计算**
+```javascript
+const fib = (n) => n <= 1 ? n : fib(n - 1) + fib(n - 2);
+return { result: fib(10) };
+```
+
+**场景 B：工具编排**
 ```javascript
 print("1. 开始并行获取数据...");
 

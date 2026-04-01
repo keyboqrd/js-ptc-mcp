@@ -10,14 +10,15 @@ export const getRunJsCodeTool = (availableServices?: string[]) => {
   return {
     name: "run_js_code",
     description: `Programmatic Tool Chaining (PTC) Environment.
-The engine remains focused entirely on high-performance tool orchestration and logic.  All logic should be driven by tool calls and standard JS primitives (arrays, objects, math, etc.)
-Use this tool PREFERENTIALLY for multi-step logic, parallel execution, or complex data processing.
+The engine remains focused on high-performance tool orchestration, data manipulation, and general-purpose logic. 
+Use this tool for multi-step logic, parallel execution, complex data processing, or pure JavaScript calculations.
 
 **Criteria for Use**:
 1. **Dependency**: Step B depends on Step A with conditional logic.
 2. **Concurrency**: Executing multiple independent tasks via 'Promise.all'.
 3. **Aggregation**: Filtering or summarizing large datasets from multiple tools.
-4. **Efficiency**: Minimizing LLM round-trips to reduce latency and token cost.
+4. **Logic**: Performing complex calculations or data transformations (e.g., formatting, sorting).
+5. **Efficiency**: Minimizing LLM round-trips to reduce latency and token cost.
 
 **Environment Specs**:
 - **Tool Invocation**: Use 'await call_client_tool(name, { args })'.

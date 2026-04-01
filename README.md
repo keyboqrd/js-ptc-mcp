@@ -79,13 +79,20 @@ Operates as an orchestrator using SSE (Server-Sent Events). It executes no tools
 
 ## The Sandbox Environment
 
-The QuickJS WASM environment is strictly sandboxed, focusing entirely on state-machine orchestration and data manipulation.
+The QuickJS WASM environment is strictly sandboxed, focusing on state-machine orchestration, data manipulation, and **general-purpose logic**. It can be used for both complex tool chaining and simple pure JavaScript calculations or data transformations.
 
-- **Available**: `call_client_tool("alias.tool_name", args)`, `print(data)`, `async/await`, `Promise.all`, and standard ES2022 primitives (Math, Date, Array, etc.).
+- **Available**: `call_client_tool("alias.tool_name", args)`, `print(data)`, `async/await`, `Promise.all`, and standard ES2022 primitives (Math, Date, Array, String, etc.).
 - **Constraints**: **NO** `fetch`, **NO** timers (`setTimeout`), and **NO** Node.js/Browser APIs. All external interactions must be routed through `call_client_tool`.
 
 ### Example LLM Script
 
+**Scenario A: Pure JavaScript Calculation**
+```javascript
+const fib = (n) => n <= 1 ? n : fib(n - 1) + fib(n - 2);
+return { result: fib(10) };
+```
+
+**Scenario B: Tool Orchestration**
 ```javascript
 print("1. Starting parallel data fetching...");
 
