@@ -1,6 +1,6 @@
 {
   "name": "quickjs-ptc-client-sample",
-  "version": "0.1.5",
+  "version": "0.1.7",
   "description": "Sample client for QuickJS PTC MCP server",
   "type": "module",
   "dependencies": {
