@@ -1,7 +1,7 @@
 {
   "name": "js-ptc-mcp",
-  "version": "0.1.3",
-  "description": "PTC MCP server using quickjs-emscripten",
+  "version": "0.1.5",
+  "description": "An MCP server implementation for Programmatic Tool Calling (PTC) that runs JavaScript. ",
   "type": "module",
   "repository": {
     "type": "git",
