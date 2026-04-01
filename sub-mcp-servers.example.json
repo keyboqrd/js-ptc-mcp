@@ -1,0 +1,10 @@
+{
+  "chrome": {
+    "command": "npx",
+    "args": ["-y", "chrome-devtools-mcp@latest"]
+  },
+  "fs": {
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-filesystem", "."]
+  }
+}
