@@ -1,6 +1,6 @@
 {
   "name": "js-ptc-mcp",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "An MCP server implementation for Programmatic Tool Calling (PTC) that runs JavaScript. ",
   "type": "module",
   "repository": {
