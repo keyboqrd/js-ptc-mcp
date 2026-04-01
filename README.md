@@ -19,27 +19,14 @@ Traditional LLM tool usage relies on sequential round-trips (*Reason -> Call Too
 
 ---
 
-## Quick Start
-
-### 1. Installation
-Install globally or as a dependency:
-```bash
-npm install -g js-ptc-mcp
-```
-Or for local development:
-```bash
-npm install
-npm run build
-```
-
-### 2. Choose Your Mode & Run
+## Usage
 
 PTC MCP supports two distinct architectures depending on your deployment topology.
 
-#### Mode A: Gateway Mode (For Standard Clients like Cursor, Claude Desktop)
-Operates as a transparent proxy using STDIO. It dynamically spawns local child MCP servers (e.g., Chrome, SQLite) based on a configuration and executes the JS micro-loop internally.
+### Mode A: Gateway Mode (For Cursor, Claude Desktop, Gemini CLI, etc.)
+Operates as a transparent proxy using STDIO. It dynamically spawns local child MCP servers based on a configuration and executes the JS micro-loop internally.
 
-1. Create a `sub-mcp-servers.json` in your project root to define underlying tools:
+1. **Configure Sub-Servers**: Create a `sub-mcp-servers.json` in your project root to define underlying tools:
     ```json
     {
       "chrome": {
@@ -52,28 +39,52 @@ Operates as a transparent proxy using STDIO. It dynamically spawns local child M
       }
     }
     ```
-2. Start the Gateway:
-    ```bash
-    # If installed globally
-    js-ptc-mcp gateway
 
-    # For local development
-    npm run gateway
-    ```
-3. **Connect your Client:** Configure your MCP client to execute `node path/to/dist/cli.js gateway`.
+2. **Add to your Client**:
+   - **Gemini CLI:**
+     ```bash
+     gemini mcp add ptc npx -y js-ptc-mcp gateway
+     ```
+   - **Claude Code:**
+     ```bash
+     claude mcp add ptc npx -y js-ptc-mcp gateway
+     ```
+   - **Manual (Cursor / Claude Desktop):**
+     Add the following to your `mcpServers` configuration:
+     ```json
+     {
+       "mcpServers": {
+         "js-ptc-mcp": {
+           "command": "npx",
+           "args": ["-y", "js-ptc-mcp", "gateway"]
+         }
+       }
+     }
+     ```
 
 > **💡 Best Practice: Direct Tool Exposure**
-> To prevent port collisions and resource exhaustion, do **NOT** register tools like `chrome-devtools-mcp` directly in your client config if they are managed by the PTC Gateway. The Gateway automatically exposes all child tools (e.g., `chrome.navigate_page`) to the LLM. The LLM can choose to write a JS script for complex tasks or call the exposed tools directly for single operations.
+> To prevent port collisions and resource exhaustion, do **NOT** register tools like `chrome-devtools-mcp` directly in your client config if they are managed by the PTC Gateway. The Gateway automatically exposes all child tools (e.g., `chrome.navigate_page`) to the LLM.
 
-#### Mode B: Remote Mode (For Custom Cloud Agents)
-Operates as an orchestrator using SSE (Server-Sent Events). It executes no tools itself, instead relying on Inversion of Control (IoC) to suspend execution and request your secure backend to perform the operations.
+### Mode B: Remote Mode (For Custom Cloud Agents)
+Operates as an orchestrator using SSE (Server-Sent Events). It executes no tools itself, instead relying on **Inversion of Control (IoC)** to suspend execution and request your secure backend to perform the operations.
 
-1. Copy `.env.example` to `.env` and configure your `PTC_API_KEY`.
-2. Start the SSE Server:
+1. **Set Up**: Copy `.env.example` to `.env` and configure your `PTC_API_KEY`.
+2. **Run Server**:
     ```bash
-    # Default port is 3000
-    npm run remote -- --port 3000
+    npx -y js-ptc-mcp remote --port 3000
     ```
+
+#### How it Works: The IoC Loop
+In Remote Mode, your backend must implement a simple loop to handle tool requests from the sandbox. When the sandbox needs a tool, it returns a `need_client_tool` status.
+
+**Workflow:**
+1. Call `run_js_code`.
+2. If status is `need_client_tool`:
+   - Execute the requested tools in your secure environment.
+   - Call `resume_js_code` with the results.
+3. Repeat until status is `success`.
+
+> **Example**: See `client-sample/remote/backend-service.js` for a full implementation of the execution loop using the MCP SDK.
 
 ---
 

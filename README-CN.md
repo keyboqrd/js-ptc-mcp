@@ -19,27 +19,14 @@
 
 ---
 
-## 快速开始
-
-### 1. 安装
-全局安装或作为依赖安装：
-```bash
-npm install -g js-ptc-mcp
-```
-或者进行本地开发：
-```bash
-npm install
-npm run build
-```
-
-### 2. 选择模式并运行
+## 使用方法
 
 PTC MCP 根据您的部署拓扑支持两种不同的架构。
 
-#### 模式 A：网关模式 (Gateway Mode) - 适用于标准客户端（如 Cursor, Claude Desktop）
-作为使用 STDIO 的透明代理运行。它根据配置文件动态启动本地子 MCP 服务端（如 Chrome, SQLite），并在内部执行 JS 微循环。
+### 模式 A：网关模式 (适用于 Cursor, Claude Desktop, Gemini CLI 等)
+作为使用 STDIO 的透明代理运行。它根据配置文件动态启动本地子 MCP 服务端，并在内部执行 JS 微循环。
 
-1. 在项目根目录创建 `sub-mcp-servers.json` 来定义基础工具：
+1. **配置子服务端**：在项目根目录创建 `sub-mcp-servers.json` 来定义基础工具：
     ```json
     {
       "chrome": {
@@ -52,28 +39,53 @@ PTC MCP 根据您的部署拓扑支持两种不同的架构。
       }
     }
     ```
-2. 启动网关：
-    ```bash
-    # 如果已全局安装
-    js-ptc-mcp gateway
 
-    # 用于本地开发
-    npm run gateway
-    ```
-3. **连接您的客户端**：配置您的 MCP 客户端执行 `node path/to/dist/cli.js gateway`。
+2. **连接您的客户端**：
+   - **Gemini CLI:**
+     ```bash
+     gemini mcp add ptc npx -y js-ptc-mcp gateway
+     ```
+   - **Claude Code:**
+     ```bash
+     claude mcp add ptc npx -y js-ptc-mcp gateway
+     ```
+   - **手动配置 (Cursor / Claude Desktop):**
+     将以下内容添加到您的 `mcpServers` 配置中：
+     ```json
+     {
+       "mcpServers": {
+         "js-ptc-mcp": {
+           "command": "npx",
+           "args": ["-y", "js-ptc-mcp", "gateway"]
+         }
+       }
+     }
+     ```
 
 > **💡 最佳实践：直接暴露工具**
-> 为了防止端口冲突和资源耗尽，如果工具（如 `chrome-devtools-mcp`）已由 PTC 网关管理，请 **不要** 在客户端配置中直接注册它们。网关会自动将所有子工具（如 `chrome.navigate_page`）暴露给 LLM。LLM 可以选择编写 JS 脚本执行复杂任务，也可以直接调用暴露的工具执行单一操作。
+> 为了防止端口冲突和资源耗尽，如果工具已由 PTC 网关管理，请 **不要** 在客户端配置中直接注册它们。网关会自动将所有子工具暴露给 LLM。
 
-#### 模式 B：远程模式 (Remote Mode) - 适用于自定义云端 Agent
-作为使用 SSE (Server-Sent Events) 的编排器运行。它本身不执行任何工具，而是依赖控制反转 (IoC) 来挂起执行，并请求您的安全后端执行操作。
+### 模式 B：远程模式 (适用于自定义云端 Agent)
+作为使用 SSE (Server-Sent Events) 的编排器运行。它本身不执行任何工具，而是依赖**控制反转 (IoC)** 来挂起执行，并请求您的安全后端执行操作。
 
-1. 将 `.env.example` 复制为 `.env` 并配置您的 `PTC_API_KEY`。
-2. 启动 SSE 服务端：
+1. **设置**：将 `.env.example` 复制为 `.env` 并配置您的 `PTC_API_KEY`。
+2. **启动服务**：
     ```bash
-    # 默认端口为 3000
-    npm run remote -- --port 3000
+    npx -y js-ptc-mcp remote --port 3000
     ```
+
+#### 运行机制：IoC 循环
+在远程模式下，您的后端必须实现一个简单的循环来处理沙箱发出的工具请求。当沙箱需要调用工具时，它会返回 `need_client_tool` 状态。
+
+**工作流：**
+1. 调用 `run_js_code`。
+2. 如果状态为 `need_client_tool`：
+   - 在您的安全环境中执行请求的工具。
+   - 使用工具结果调用 `resume_js_code`。
+3. 重复此过程直到状态变为 `success`。
+
+> **示例**：请参考 `client-sample/remote/backend-service.js`，了解如何使用 MCP SDK 实现完整的执行循环。
+
 
 ---
 
