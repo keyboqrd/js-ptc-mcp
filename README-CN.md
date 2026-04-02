@@ -1,8 +1,8 @@
-# QuickJS PTC MCP 服务端
+# JavaScript Programmatic-Tool-Calling MCP 服务端
 
 [English (README.md)](./README.md)
 
-一个用于实现程序化工具调用（**Programmatic Tool Calling - PTC**）的 MCP server 实现，支持 JavaScript 运行。
+一个程序化工具调用（**Programmatic Tool Calling - PTC**）的 MCP server 实现，支持 JavaScript 运行。
 
 程序化工具使用的概念最早由 Anthropic Claude API 提出，允许模型编写代码以在单次会话中编排多个工具。本项目提供了一个**开源、模型无关的替代方案**，适用于原生 PTC 不可用的环境，通过标准 MCP 协议为任何 LLM（OpenAI、Gemini、本地模型等）带来同样强大的编排能力。
 

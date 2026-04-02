@@ -1,4 +1,4 @@
-# QuickJS PTC MCP Server
+# JavaScript Programmatic-Tool-Calling MCP Server
 
 [中文文档 (README-CN.md)](./README-CN.md)
 
