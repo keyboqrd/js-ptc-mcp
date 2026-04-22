@@ -19,6 +19,12 @@ Traditional LLM tool usage relies on sequential round-trips (*Reason -> Call Too
 
 ---
 
+## Quick Start
+
+See [SKILL.md](./SKILL.md) for a concise guide on using `run_js_code` for tool orchestration, parallel execution, and data aggregation.
+
+---
+
 ## Usage
 
 PTC MCP supports two distinct architectures depending on your deployment topology.
